@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateAge } from './utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 
 function PatientList({ onItemClick }) {
@@ -34,36 +36,36 @@ function PatientList({ onItemClick }) {
 
 
     return (
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th><input type="text" value={searchFor} onChange={handleSearchFor} /></th>
-                        <th colSpan={4}>{searchStatus}</th>
-
-                    </tr>
-                    <tr>
-                        <th>Phone</th>
-                        <th>Patient Name</th>
-                        <th>Parent Name</th>
-                        <th>Gender</th>
-                        <th>DOB</th>
-                    </tr>
-
-                </thead>
-                <tbody>
-                    {entities && entities.map(entity => (
-                        <tr key={`${entity.patientName}-${entity.phone}`} onClick={() => onItemClick(entity)}>
-                            <td>{entity.phone}</td>
-                            <td><b>{entity.patientName}</b></td>
-                            <td>{entity.parentName}</td>
-                            <td>{entity.gender}</td>
-                            <td>{entity.dateOfBirth}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
+        <div className="patient-list">
+            <div className="patient-list-header">
+                <div className="search-container">
+                    <FontAwesomeIcon className="search-icon" icon={faSearch} />
+                  <input
+                        type="text"
+                        value={searchFor}
+                        onChange={handleSearchFor}
+                        className="search-input"
+                    />
+                    
+                </div>
+                <span>{searchStatus}</span>
+            </div>
+            {entities &&
+                entities.map((entity) => (
+                    <div
+                        key={`${entity.patientName}-${entity.phone}`}
+                        className="patient-item"
+                        onClick={() => onItemClick(entity)}
+                    >
+                        <span>{entity.phone}</span>
+                        <span>
+                            <b>{entity.patientName}</b>
+                        </span>
+                        <span>{entity.parentName}</span>
+                        <span>{entity.gender}</span>
+                        <span>{entity.dateOfBirth}</span>
+                    </div>
+                ))}
         </div>
     );
 }

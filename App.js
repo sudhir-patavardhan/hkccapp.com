@@ -16,71 +16,68 @@ function App() {
   const showList = () => {
     setSelectedEntity(null);
   };
-  const [selectedTab, setSelectedTab] = useState('list');
+  const [selectedTab, setSelectedTab] = useState(null);
+  const [showTiles, setShowTiles] = useState(true);
   const handleTabClick = (tab) => {
     if (tab === 'list') setSelectedEntity(null);
     setSelectedTab(tab);
+    setShowTiles(false);
   };
-  const [menuOpen, setMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+  const handleHomeClick = () => {
+    setSelectedTab(null);
+    setShowTiles(true);
+  };
+
+  const renderContent = () => {
+    switch (selectedTab) {
+      case 'list':
+        return <PatientList onItemClick={handleItemClick} />;
+      case 'details':
+        return <PatientDetails selectedPatient={selectedEntity} onItemClick={handleItemClick} />;
+      case 'visit':
+        return selectedEntity ? <VisitDetails selectedPatient={selectedEntity} /> : 'Search or Add New Patient';
+      case 'vaccine':
+        return <Vaccine />;
+      case 'visitReport':
+        return <VisitReport />;
+      default:
+        return null;
+    }
   };
 
   return (
-
     <div className="app-container">
-
-      <div className="hamburger" onClick={toggleMenu}>
-        <i className="fas fa-bars"></i>
-      </div>
-      <div className={`sidebar${menuOpen ? ' open' : ''}`}>
-        
-          <h1>Dr Sheela's Clinic</h1>
-          <h4>Visit</h4>
-          <ul>
-            <li>
-              <button className={`tab-button ${selectedTab === 'list' ? 'active' : ''}`} onClick={() => handleTabClick('list')}>
-                Search Patient
-              </button>
-            </li>
-            <li>
-              <button className={`tab-button ${selectedTab === 'details' ? 'active' : ''}`} onClick={() => handleTabClick('details')}>
-                {selectedEntity ? 'Patient Details' : 'New Patient'}
-              </button>
-            </li>
-            <li>
-              <button className={`tab-button ${selectedTab === 'visit' ? 'active' : ''}`} onClick={() => handleTabClick('visit')}>
-                Visit Details
-              </button>
-            </li>
-          </ul>
-          <h4>Data</h4>
-          <ul>
-            <li>
-              <button className={`tab-button ${selectedTab === 'vaccine' ? 'active' : ''}`} onClick={() => handleTabClick('vaccine')}>
-                Vaccines
-              </button>
-            </li>
-            <li>
-              <button className={`tab-button ${selectedTab === 'visitReport' ? 'active' : ''}`} onClick={() => handleTabClick('visitReport')}>
-                Visit Report
-              </button>
-            </li>
-
-          </ul>
-        
-      </div>
       <div className="content">
-        <h3>
-          {selectedEntity && (selectedTab === 'details' || selectedTab === 'visit') ? selectedEntity.patientName + ": " + selectedEntity.phone + " > " : ''}
-        </h3>
-        {selectedTab === 'list' ? <PatientList onItemClick={handleItemClick} /> : ''}
-        {selectedTab === 'details' ? <PatientDetails selectedPatient={selectedEntity} onItemClick={handleItemClick} /> : ''}
-        {selectedEntity && selectedTab === 'visit' ? <VisitDetails selectedPatient={selectedEntity} /> : selectedTab === 'visit' && 'Search or Add New Patient'}
-        {selectedTab === 'vaccine' ? <Vaccine /> : ''}
-        {selectedTab === 'visitReport' ? <VisitReport /> : ''}
+      <div className="content-header">
+          <button className={`home-button ${showTiles ? 'hidden' : ''}`} onClick={handleHomeClick}>
+            Home
+          </button>
+          <span>Dr. Sheela's Clinic</span>
+        </div>
+        {renderContent()}
+      
+      {showTiles && (
+        <div className="tile-menu">
+          <div className="tile" onClick={() => handleTabClick('list')}>
+            <h3>Search Patient</h3>
+          </div>
+          <div className="tile" onClick={() => handleTabClick('details')}>
+            <h3>{selectedEntity ? 'Patient Details' : 'New Patient'}</h3>
+          </div>
+          <div className="tile" onClick={() => handleTabClick('visit')}>
+            <h3>Visit Details</h3>
+          </div>
+          <div className="tile" onClick={() => handleTabClick('vaccine')}>
+            <h3>Vaccines</h3>
+          </div>
+          <div className="tile" onClick={() => handleTabClick('visitReport')}>
+            <h3>Visit Report</h3>
+          </div>
+        </div>
+      )}
       </div>
+       
     </div>
   );
 }
