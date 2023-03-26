@@ -22,7 +22,7 @@ export function getDateFromStr(dateString) {
 
     return new Date(year, monthIndex, day);
   }
-  return new Date();
+  return '';
 }
 
 
