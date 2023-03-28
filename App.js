@@ -9,6 +9,10 @@ import VisitReport from './components/VisitReport';
 
 function App() {
   const [selectedEntity, setSelectedEntity] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
+
   const handleItemClick = (entity) => {
     setSelectedEntity(entity);
     setSelectedTab('visit');
@@ -19,7 +23,7 @@ function App() {
   const [selectedTab, setSelectedTab] = useState(null);
   const [showTiles, setShowTiles] = useState(true);
   const handleTabClick = (tab) => {
-    if (tab === 'list') setSelectedEntity(null);
+    if (tab === 'list' || tab === 'details') setSelectedEntity(null);
     setSelectedTab(tab);
     setShowTiles(false);
   };
@@ -27,6 +31,62 @@ function App() {
   const handleHomeClick = () => {
     setSelectedTab(null);
     setShowTiles(true);
+  };
+
+  const handleDetailsClick = () => {
+    setSelectedTab('details');
+    setShowTiles(false);
+  };
+
+  const handleLogout = () => {
+    setAuthenticated(false);
+    setUserId('');
+    setPassword('');
+  };
+
+  const authenticateUser = async () => {
+    const response = await fetch('https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userid: userId,
+        password: password,
+      }),
+    });
+    const responseJson = await response.json();
+    console.log(responseJson);
+    if (responseJson['statusCode'] === 200) {
+      setAuthenticated(true);
+    } else {
+      setAuthenticated(false);
+      alert('Authentication failed!');
+      // Handle authentication failure (e.g., show an error message, prompt the user to try again, etc.)
+    }
+  };
+
+  const renderLoginForm = () => {
+    return (
+      <div className="login-form">
+        <h2>Login</h2>
+        <label htmlFor="user_id">User ID:</label>
+        <input
+          type="text"
+          id="user_id"
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+        />
+        <label htmlFor="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button onClick={authenticateUser}>Login</button>
+      </div>
+    );
   };
 
   const renderContent = () => {
@@ -46,38 +106,55 @@ function App() {
     }
   };
 
+  const renderTiles = () => {
+    return (
+      <div className="tile-menu">
+        <div className="tile" onClick={() => handleTabClick('list')}>
+          <i className="fas fa-users tile-icon"></i>
+          {' Search Patients'}
+        </div>
+        <div className="tile" onClick={() => handleTabClick('details')}>
+          <i className="fas fa-user-plus tile-icon"></i>
+          {'New Patient'}
+        </div>
+        <div className="tile" onClick={() => handleTabClick('visit')}>
+          <i className="fas fa-door-open tile-icon"></i>
+          {'Visit Details'}
+        </div>
+        <div className="tile" onClick={() => handleTabClick('vaccine')}>
+          <i className="fas fa-syringe tile-icon"></i>
+          {'Vaccine List'}
+        </div>
+        <div className="tile" onClick={() => handleTabClick('visitReport')}>
+          <i className="fas fa-chart-bar tile-icon"></i>
+          {'Report'}
+        </div>
+      </div>
+    )
+
+  }
+
   return (
     <div className="app-container">
       <div className="content">
-      <div className="content-header">
+        <div className="content-header">
           <button className={`home-button ${showTiles ? 'hidden' : ''}`} onClick={handleHomeClick}>
-            Home
+            <i class="fas fa-clinic-medical"></i>
           </button>
-          <span>Dr. Sheela's Clinic</span>
+          <button className={`details-button ${showTiles || !selectedEntity ? 'hidden' : ''}`} onClick={handleDetailsClick}>
+            {selectedEntity && <i class="fas fa-hospital-user"></i>}
+          </button>
+          <span>Dr. Sheela's Clinic - HKCC</span>
+          {authenticated && (
+            <button className="logout-button" onClick={handleLogout}>
+              <i class="fas fa-duotone fa-right-from-bracket"></i>
+            </button>
+          )}
         </div>
-        {renderContent()}
-      
-      {showTiles && (
-        <div className="tile-menu">
-          <div className="tile" onClick={() => handleTabClick('list')}>
-            <h3>Search Patient</h3>
-          </div>
-          <div className="tile" onClick={() => handleTabClick('details')}>
-            <h3>{selectedEntity ? 'Patient Details' : 'New Patient'}</h3>
-          </div>
-          <div className="tile" onClick={() => handleTabClick('visit')}>
-            <h3>Visit Details</h3>
-          </div>
-          <div className="tile" onClick={() => handleTabClick('vaccine')}>
-            <h3>Vaccines</h3>
-          </div>
-          <div className="tile" onClick={() => handleTabClick('visitReport')}>
-            <h3>Visit Report</h3>
-          </div>
-        </div>
-      )}
+        {authenticated === false && renderLoginForm()}
+        {authenticated === true && showTiles && renderTiles()}
+        {authenticated === true && renderContent()}
       </div>
-       
     </div>
   );
 }

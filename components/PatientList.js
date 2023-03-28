@@ -36,8 +36,8 @@ function PatientList({ onItemClick }) {
 
 
     return (
-        <div className="patient-list">
-            <div className="patient-list-header">
+        <div className="list">
+            <div className="list-header">
                 <div className="search-container">
                     <FontAwesomeIcon className="search-icon" icon={faSearch} />
                   <input
@@ -54,7 +54,7 @@ function PatientList({ onItemClick }) {
                 entities.map((entity) => (
                     <div
                         key={`${entity.patientName}-${entity.phone}`}
-                        className="patient-item"
+                        className="item"
                         onClick={() => onItemClick(entity)}
                     >
                         <span>{entity.phone}</span>

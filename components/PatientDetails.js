@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import "react-datepicker/dist/react-datepicker.css";
 import { getDateFromStr } from './utils';
 
 
@@ -112,76 +111,46 @@ function PatientDetails({ selectedPatient, onItemClick }) {
     };
 
     return (
-        <div>
-
+        <div className="list">
+            <h3>Patient Details</h3>
             <form onSubmit={handleSubmit}>
-                <table>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <label>Phone:</label>
-                            </td>
-                            <td>
-                                <input type="text" value={selectedPatient && selectedPatient.phone} onChange={handlePhoneChange} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label>Patient Name:</label>
-                            </td>
-                            <td>
-                                <input type="text" value={selectedPatient && selectedPatient.patientName} onChange={handlePatientNameChange} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label>Parent Name:</label>
-                            </td>
-                            <td>
-                                <input type="text" value={selectedPatient && selectedPatient.parentName} onChange={handleParentNameChange} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label>Gender:</label>
-                            </td>
-                            <td>
-                                <select value={selectedPatient && selectedPatient.gender} onChange={handleGenderChange}>
-                                    <option value="">Select gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label>Date of Birth:</label>
-                            </td>
-                            <td>
-                                <input
-                                    type="date"
-                                    id="dateOfBirth"
-                                    value={selectedPatient && selectedPatient.dateOfBirth}
-                                    onChange={handleDateOfBirthChange}
-                                />
-
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <button type="submit">{isFetching ? 'Saving...' : 'Save'}</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
+                <div className="form-group">
+                    <label>Phone:</label>
+                    <input type="text" value={selectedPatient && selectedPatient.phone} onChange={handlePhoneChange} />
+                </div>
+                
+                <div className="form-group">
+                    <label>Patient Name:</label>
+                    <input type="text" value={selectedPatient && selectedPatient.patientName} onChange={handlePatientNameChange} />
+                </div>
+                <div className="form-group">
+                    <label>Parent Name:</label>
+                    <input type="text" value={selectedPatient && selectedPatient.parentName} onChange={handleParentNameChange} />
+                </div>
+                <div className="form-group">
+                    <label>Gender:</label>
+                    <select value={selectedPatient && selectedPatient.gender} onChange={handleGenderChange}>
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div className="form-group">
+                    <label>Date of Birth:</label>
+                    <input
+                        type="date"
+                        id="dateOfBirth"
+                        value={selectedPatient && selectedPatient.dateOfBirth}
+                        onChange={handleDateOfBirthChange}
+                    />
+                </div>
+                <div className="form-group">
+                    <button type="submit"><i className="fas fa-duotone fa-floppy-disk"></i>{isFetching ? ' Saving...' : ' Save'}</button>
+                </div>
             </form>
-
-
         </div>
     );
 }
 
 export default PatientDetails;
-

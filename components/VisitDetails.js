@@ -57,6 +57,27 @@ const VisitDetails = ({ selectedPatient }) => {
 
   };
 
+  const handleDeleteVisit = async (phoneAndPatientName, visitDate) => {
+    try {
+      const response = await fetch(`https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/visit?phoneAndPatientName=${phoneAndPatientName}&visitDate=${visitDate}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        console.log('Visit deleted successfully');
+        fetchVisits(); // Refresh the visit list after deletion
+      } else {
+        console.error('Error deleting visit:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting visit:', error);
+    }
+  };
+
+
 
   useEffect(() => {
     const fetchVaccines = async () => {
@@ -128,17 +149,20 @@ const VisitDetails = ({ selectedPatient }) => {
 
   const insertVaccines = async () => {
     for (const vaccine of vaccines) {
-      try {
-        const response = await axios.put(
-          'https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/vaccinegiven',
-          vaccine
-        );
-        console.log('001 Vaccine details added successfully!!!! ' + JSON.stringify(response.data));
-        // clear form inputs after successful submission
-        //setVaccines([{ manufacturer: '', vaccineName: '', vaccineCost: '' }]);
-      } catch (error) {
-        console.error(error);
-        alert('Failed to add vaccine details. Please try again later.');
+      if (vaccine.vaccineName) {
+        vaccine.givenDate = visitDate;
+        try {
+          const response = await axios.put(
+            'https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/vaccinegiven',
+            vaccine
+          );
+          console.log('001 Vaccine details added successfully!!!! ' + JSON.stringify(response.data));
+          // clear form inputs after successful submission
+          //setVaccines([{ manufacturer: '', vaccineName: '', vaccineCost: '' }]);
+        } catch (error) {
+          console.error(error);
+          alert('Failed to add vaccine details. Please try again later.');
+        }
       }
     }
   };
@@ -177,133 +201,101 @@ const VisitDetails = ({ selectedPatient }) => {
 
   return (
     <div>
-
-
-      <table>
-        <thead>
-
-          <tr>
-            <th colSpan={3}>{visits ? visits.length : ''} Previous Visits {loading && <div className="spinner">Loading...</div>}</th>
-          </tr>
-          {visits.length > 0 ?
-            <tr>
-              <th>Date</th>
-              <th>Fee Paid</th>
-              <th>Vaccines Given</th>
-            </tr>
-            : ''}
-        </thead>
-        <tbody>
-          {visits.map((visit) => (
-            <tr key={visit.visitDate}>
-              <td>{visit.visitDate}</td>
-              <td>{visit.totalFee}</td>
-              <td>{visit.vaccineGiven}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <form onSubmit={handleSubmit}>
-        <table>
-          <tbody>
-            <tr>
-              <th colSpan="2">
-                <label htmlFor="visitDate">New Visit on:</label>
-              </th>
-              <th>
-                <input
-                  type="date"
-                  id="visitDate"
-                  value={visitDate || new Date().toISOString().slice(0, 10)}
-                  onChange={(e) => setVisitDate(e.target.value)}
-                />
-              </th>
-            </tr>
-            <tr>
-              <td colSpan="2">
-                <label htmlFor="paymentMode">Payment Mode:</label>
-              </td>
-              <td>
-                <div onChange={(e) => setPaymentMode(e.target.value)} id="paymentMode">
-                  <input type="radio" value="Cash" name="paymentMode" /> Cash
-                  <input type="radio" value="Paytm" name="paymentMode" /> Paytm
-                  <input type="radio" value="UPI" name="paymentMode" /> UPI
-                  <input type="radio" value="Card" name="paymentMode" /> Card
-                  <input type="radio" value="Other" name="paymentMode" /> Other
+      <div className="list">
+        {<h4>{selectedPatient.patientName} , {selectedPatient.phone}</h4>}
+        {visits && visits.length > 0 &&
+          <ol className="visit-body">
+            {visits.map((visit) => (
+              <li key={visit.visitDate} className="item">
+                <div>
+                  {'Date: ' + visit.visitDate}
+                  {', Paid: ' + visit.totalFee}
+                  {visit.vaccineGiven && ', Vaccines:  ' + visit.vaccineGiven}
                 </div>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan="2">
-                <label htmlFor="consultationFee">Consultation Fee:</label>
-              </td>
-              <td>
-                <input
-                  type="number"
-                  id="consultationFee"
-                  value={consultationFee}
-                  onChange={(e) => handleConsultationFeeChange(e)}
-                />
-              </td>
-            </tr>
-            <tr>
-              <th colSpan="2">Vaccine</th>
-              <th>Vaccine Cost</th>
-            </tr>
-            {vaccines.map((vaccine, index) => (
-              <tr key={index}>
-                <td>
-                  <button type="button" className="remove-vaccine" onClick={() => handleRemoveVaccine(index)}></button>
-                </td>
-                <td>
-                  <select value={vaccine.vaccineName} onChange={(e) => handleVaccineNameChange(index, e)} >
-                    <option key='' value=''></option>
-                    {vaccineOptions.map((option) => (
-                      <option key={option.vaccineName} value={option.vaccineName}>
-                        {option.vaccineName}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={vaccine.vaccineCost}
-                    onChange={(e) => handleVaccineCostChange(index, e)}
-                  />
-                </td>
-              </tr>
+                <button
+                  onClick={() =>
+                    handleDeleteVisit(
+                      `${selectedPatient.phone}%7C${selectedPatient.patientName}`,
+                      visit.visitDate
+                    )
+                  }
+                >
+                  <i className="fas fa-duotone fa-trash"></i>
+                </button>
+              </li>
             ))}
-            <tr>
-              <td>
-                <button type="button" className="add-vaccine" onClick={handleAddVaccine}></button>
-              </td>
-              <td> Total Vaccine Cost:</td>
-              <td>
-                {totalVaccineFee}
-              </td>
-            </tr>
-            <tr>
-              <td>
-              </td>
-              <td> Total Payment: </td>
-              <td>
-                {totalFee}
-              </td>
-            </tr>
-            <tr>
-              <th colSpan="3">
-                {loading && <div className="spinner">Loading...</div>}
-                <button type="submit">Save</button>
-                {isSaved ? ' Saved' : ''}
+          </ol>}
+      </div>
+      {<h4>New Visit</h4>}
+      <form onSubmit={handleSubmit} className='list'>
+        <div className="item">
+          <label htmlFor="visitDate"> Date:</label>
+          <input
+            type="date"
+            id="visitDate"
+            value={visitDate || new Date().toISOString().slice(0, 10)}
+            onChange={(e) => setVisitDate(e.target.value)}
+          />
+        </div>
+        <div className="item">
+          <label htmlFor="paymentMode">Payment Mode:</label>
+          <div onChange={(e) => setPaymentMode(e.target.value)} id="paymentMode">
+            <input type="radio" value="Cash" name="paymentMode" /> Cash
+            <input type="radio" value="Paytm" name="paymentMode" /> Paytm
+            <input type="radio" value="UPI" name="paymentMode" /> UPI
+            <input type="radio" value="Card" name="paymentMode" /> Card
+            <input type="radio" value="Other" name="paymentMode" /> Other
+          </div>
+        </div>
+        <div className="item">
+          <label htmlFor="consultationFee">Consultation Fee:</label>
+          <input
+            type="number"
+            id="consultationFee"
+            value={consultationFee}
+            onChange={(e) => handleConsultationFeeChange(e)}
+          />
+        </div>
 
-              </th>
+        {vaccines.map((vaccine, index) => (
+          <div key={index} className="item">
+            <button type="button" className="remove-vaccine" onClick={() => handleRemoveVaccine(index)}><i className="fas fa-duotone fa-minus"></i></button>
+            <label>Vaccine: </label>
+            <select value={vaccine.vaccineName} onChange={(e) => handleVaccineNameChange(index, e)} >
+              <option key='' value=''></option>
+              {vaccineOptions.map((option) => (
+                <option key={option.vaccineName} value={option.vaccineName}>
+                  {option.vaccineName}
+                </option>
+              ))}
+            </select>
+            <label>Cost: </label>
+            <input
+              type="number"
+              value={vaccine.vaccineCost}
+              onChange={(e) => handleVaccineCostChange(index, e)}
+            />
+          </div>
+        ))}
+        <div className="form-group">
+          <button type="button" className="add-vaccine" onClick={handleAddVaccine}><i className="fas fa-duotone fa-plus"></i></button>
 
-            </tr>
-          </tbody>
-        </table>
+        </div>
+        <div className='form-group'>
+          <label>Total Vaccine Cost:</label>
+          <span>{totalVaccineFee}</span>
+        </div>
+        <div className="form-group">
+          <label>Total Payment:</label>
+          <span>{totalFee}</span>
+        </div>
+        <div className="form-group">
+          {loading && <div className="spinner">Saving...</div>}
+          <button type="submit"><i className="fas fa-duotone fa-floppy-disk"></i> Save </button>
+
+        </div>
       </form>
+
 
     </div>
   );
