@@ -6,6 +6,8 @@ import Vaccine from './components/Vaccine';
 import PatientDetails from './components/PatientDetails';
 import VisitDetails from './components/VisitDetails';
 import VisitReport from './components/VisitReport';
+import DoctorAvailability from './components/DoctorAvailability';
+import BookedAppointments from './components/BookedAppointments';
 
 function App() {
   const [selectedEntity, setSelectedEntity] = useState(null);
@@ -42,6 +44,7 @@ function App() {
     setAuthenticated(false);
     setUserId('');
     setPassword('');
+    setSelectedEntity(null);
   };
 
   const authenticateUser = async () => {
@@ -101,6 +104,8 @@ function App() {
         return <Vaccine />;
       case 'visitReport':
         return <VisitReport />;
+      case 'doctorAvailability':
+        return <div> <BookedAppointments /><DoctorAvailability /></div>;
       default:
         return null;
     }
@@ -129,6 +134,11 @@ function App() {
           <i className="fas fa-chart-bar tile-icon"></i>
           {'Report'}
         </div>
+        <div className="tile" onClick={() => handleTabClick('doctorAvailability')}>
+          <i className="fas fa-calendar-days tile-icon"></i>
+          {'Doctor\'s Schedule'}
+        </div>
+        
       </div>
     )
 

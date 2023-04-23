@@ -25,16 +25,22 @@ export function getDateFromStr(dateString) {
   return '';
 }
 
-
-export function calculateAge(dateOfBirth) {
-    const birthDate = new Date(dateOfBirth);
-    const currentDate = new Date();
-    let age = currentDate.getFullYear() - birthDate.getFullYear();
-    const monthDiff = currentDate.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    
-    return age;
+export function getAgeString(dateOfBirth)
+{
+  //console.log(dateOfBirth);
+  if(dateOfBirth === undefined)
+  {
+    return '';
+  }
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  const ageCalc = today.getFullYear() - birthDate.getFullYear();
+  const monthCalc = today.getMonth() - birthDate.getMonth();
+  if(monthCalc < 0)
+  {
+      return((ageCalc-1) + 'y ' + (12+monthCalc) + 'mo');
+  }
+  else{
+      return(ageCalc + 'y '+ monthCalc +'mo')
+  }
 }

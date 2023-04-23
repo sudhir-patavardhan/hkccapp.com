@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDateFromStr } from './utils';
+import { getDateFromStr, getAgeString } from './utils';
 
 
 function PatientDetails({ selectedPatient, onItemClick }) {
@@ -18,17 +18,12 @@ function PatientDetails({ selectedPatient, onItemClick }) {
 
     useEffect(() => {
         if (selectedPatient && selectedPatient.dateOfBirth) {
-            const birthDate = getDateFromStr(selectedPatient.dateOfBirth);
-            const today = new Date();
-            const ageCalc = today.getFullYear() - birthDate.getFullYear();
-            const monthCalc = today.getMonth() - birthDate.getMonth();
-            if (monthCalc < 0 || (monthCalc === 0 && today.getDate() < birthDate.getDate())) {
-                setAge(ageCalc - 1);
-            } else {
-                setAge(ageCalc);
-            }
+            setAge(getAgeString(selectedPatient.dateOfBirth));
         }
-    }, [selectedPatient]);
+        else{
+            setAge(getAgeString(dateOfBirth));
+        }
+    }, [selectedPatient,dateOfBirth]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -144,6 +139,7 @@ function PatientDetails({ selectedPatient, onItemClick }) {
                         value={selectedPatient && selectedPatient.dateOfBirth}
                         onChange={handleDateOfBirthChange}
                     />
+                    <label>{age}</label>
                 </div>
                 <div className="form-group">
                     <button type="submit"><i className="fas fa-duotone fa-floppy-disk"></i>{isFetching ? ' Saving...' : ' Save'}</button>

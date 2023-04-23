@@ -401,3 +401,18 @@ tr:nth-child(even) {
 }
 
 
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.calendar-table th,
+.calendar-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.available-slot {
+  background-color: #a0ffa0;
+}

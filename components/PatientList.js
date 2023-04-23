@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { calculateAge } from './utils';
+import { getAgeString } from './utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
@@ -63,7 +63,7 @@ function PatientList({ onItemClick }) {
                         </span>
                         <span>{entity.parentName}</span>
                         <span>{entity.gender}</span>
-                        <span>{entity.dateOfBirth}</span>
+                        <span>{entity.dateOfBirth} : {getAgeString(entity.dateOfBirth)}</span>
                     </div>
                 ))}
         </div>

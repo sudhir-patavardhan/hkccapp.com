@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getAgeString } from './utils';
 
 function calcTotalVaccineCost(vaccines) {
   let total = 0;
@@ -32,7 +33,7 @@ const VisitDetails = ({ selectedPatient }) => {
   const [visitDate, setVisitDate] = useState(new Date().toISOString().slice(0, 10));
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
-  const [paymentMode, setPaymentMode] = useState('');
+  const [paymentMode, setPaymentMode] = useState('Cash');
   const [consultationFee, setConsultationFee] = useState('');
   const [totalVaccineFee, setTotalVaccineFee] = useState(0);
   const [totalFee, setTotalFee] = useState(0);
@@ -202,7 +203,7 @@ const VisitDetails = ({ selectedPatient }) => {
   return (
     <div>
       <div className="list">
-        {<h4>{selectedPatient.patientName} , {selectedPatient.phone}</h4>}
+        {<h4>{selectedPatient.patientName}, {selectedPatient && getAgeString(selectedPatient.dateOfBirth)} , {selectedPatient.phone}</h4>}
         {visits && visits.length > 0 &&
           <ol className="visit-body">
             {visits.map((visit) => (
@@ -228,7 +229,7 @@ const VisitDetails = ({ selectedPatient }) => {
       </div>
       {<h4>New Visit</h4>}
       <form onSubmit={handleSubmit} className='list'>
-        <div className="item">
+        <div className="form-group">
           <label htmlFor="visitDate"> Date:</label>
           <input
             type="date"
@@ -237,8 +238,15 @@ const VisitDetails = ({ selectedPatient }) => {
             onChange={(e) => setVisitDate(e.target.value)}
           />
         </div>
-        <div className="item">
-          <label htmlFor="paymentMode">Payment Mode:</label>
+        <div className="form-group">
+          <label htmlFor="consultationFee">Consultation Fee:</label>
+          <input
+            type="number"
+            id="consultationFee"
+            value={consultationFee}
+            onChange={(e) => handleConsultationFeeChange(e)}
+          />
+
           <div onChange={(e) => setPaymentMode(e.target.value)} id="paymentMode">
             <input type="radio" value="Cash" name="paymentMode" /> Cash
             <input type="radio" value="Paytm" name="paymentMode" /> Paytm
@@ -247,18 +255,9 @@ const VisitDetails = ({ selectedPatient }) => {
             <input type="radio" value="Other" name="paymentMode" /> Other
           </div>
         </div>
-        <div className="item">
-          <label htmlFor="consultationFee">Consultation Fee:</label>
-          <input
-            type="number"
-            id="consultationFee"
-            value={consultationFee}
-            onChange={(e) => handleConsultationFeeChange(e)}
-          />
-        </div>
 
         {vaccines.map((vaccine, index) => (
-          <div key={index} className="item">
+          <div key={index} className="form-group">
             <button type="button" className="remove-vaccine" onClick={() => handleRemoveVaccine(index)}><i className="fas fa-duotone fa-minus"></i></button>
             <label>Vaccine: </label>
             <select value={vaccine.vaccineName} onChange={(e) => handleVaccineNameChange(index, e)} >
