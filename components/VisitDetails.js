@@ -37,6 +37,8 @@ const VisitDetails = ({ selectedPatient }) => {
   const [consultationFee, setConsultationFee] = useState('');
   const [totalVaccineFee, setTotalVaccineFee] = useState(0);
   const [totalFee, setTotalFee] = useState(0);
+  const [sessionNumber, setSessionNumber] = useState(new Date().getHours() < 17 ? '1':'2');
+  const [entryTime, setEntryTime] = useState( new Date().getHours() * 10000 + new Date().getMinutes() * 100 + new Date().getSeconds());
 
   const [vaccines, setVaccines] = useState([{ phone: phone, patientName: patientName, givenDate: visitDate, vaccineName: '', vaccineCost: '', notes: '' }]);
 
@@ -53,7 +55,7 @@ const VisitDetails = ({ selectedPatient }) => {
       body: JSON.stringify({ phone: selectedPatient.phone, patientName: selectedPatient.patientName, startDate: '01/01/2000', endDate: new Date() })
     });
     const data = await response.json();
-    // alert(JSON.stringify(data));
+    //alert(JSON.stringify(data));
     setVisits(JSON.parse(data));
 
   };
@@ -181,6 +183,8 @@ const VisitDetails = ({ selectedPatient }) => {
       consultationFee,
       totalVaccineFee,
       totalFee,
+      sessionNumber,
+      entryTime
     };
     console.log(JSON.stringify(visitDetails));
 
@@ -237,6 +241,12 @@ const VisitDetails = ({ selectedPatient }) => {
             value={visitDate || new Date().toISOString().slice(0, 10)}
             onChange={(e) => setVisitDate(e.target.value)}
           />
+          <label> Session: </label>
+            <select value={sessionNumber} onChange={(e) => setSessionNumber(e.target.value)} >
+              <option key='1' value='1'>1</option>
+              <option key='2' value='2'>2</option>
+
+              </select>
         </div>
         <div className="form-group">
           <label htmlFor="consultationFee">Consultation Fee:</label>

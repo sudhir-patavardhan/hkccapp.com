@@ -48,6 +48,7 @@ function App() {
   };
 
   const authenticateUser = async () => {
+    console.log(userId);
     const response = await fetch('https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/signin', {
       method: 'POST',
       headers: {
