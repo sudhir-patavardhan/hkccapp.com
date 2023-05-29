@@ -72,6 +72,7 @@ function App() {
 
   const renderLoginForm = () => {
     return (
+      <div>
       <div className="login-form">
         <h2>Login</h2>
         <label htmlFor="user_id">User ID:</label>
@@ -89,6 +90,9 @@ function App() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button onClick={authenticateUser}>Login</button>
+        
+      </div>
+      <BookedAppointments />
       </div>
     );
   };
@@ -139,6 +143,7 @@ function App() {
           <i className="fas fa-calendar-days tile-icon"></i>
           {'Doctor\'s Schedule'}
         </div>
+        <div className="tileAlso"><BookedAppointments /></div>
         
       </div>
     )
