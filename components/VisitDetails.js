@@ -206,31 +206,7 @@ const VisitDetails = ({ selectedPatient }) => {
 
   return (
     <div>
-      <div className="list">
-        {<h4>{selectedPatient.patientName}, {selectedPatient && getAgeString(selectedPatient.dateOfBirth)} , {selectedPatient.phone}</h4>}
-        {visits && visits.length > 0 &&
-          <ol className="visit-body">
-            {visits.map((visit) => (
-              <li key={visit.visitDate} className="item">
-                <div>
-                  {'Date: ' + visit.visitDate}
-                  {', Paid: ' + visit.totalFee}
-                  {visit.vaccineGiven && ', Vaccines:  ' + visit.vaccineGiven}
-                </div>
-                <button
-                  onClick={() =>
-                    handleDeleteVisit(
-                      `${selectedPatient.phone}%7C${selectedPatient.patientName}`,
-                      visit.visitDate
-                    )
-                  }
-                >
-                  <i className="fas fa-duotone fa-trash"></i>
-                </button>
-              </li>
-            ))}
-          </ol>}
-      </div>
+ {<h4>{selectedPatient.patientName}, {selectedPatient && getAgeString(selectedPatient.dateOfBirth)} , {selectedPatient.phone}</h4>}
       {<h4>New Visit</h4>}
       <form onSubmit={handleSubmit} className='list'>
         <div className="form-group">
@@ -304,7 +280,31 @@ const VisitDetails = ({ selectedPatient }) => {
 
         </div>
       </form>
-
+      <div className="list">
+      {<h4>Previous Visit</h4>}
+        {visits && visits.length > 0 &&
+          <ol className="visit-body">
+            {visits.map((visit) => (
+              <li key={visit.visitDate} className="item">
+                <div>
+                  {'Date: ' + visit.visitDate}
+                  {', Paid: ' + visit.totalFee}
+                  {visit.vaccineGiven && ', Vaccines:  ' + visit.vaccineGiven}
+                </div>
+                <button
+                  onClick={() =>
+                    handleDeleteVisit(
+                      `${selectedPatient.phone}%7C${selectedPatient.patientName}`,
+                      visit.visitDate
+                    )
+                  }
+                >
+                  <i className="fas fa-duotone fa-trash"></i>
+                </button>
+              </li>
+            ))}
+          </ol>}
+      </div>
 
     </div>
   );
