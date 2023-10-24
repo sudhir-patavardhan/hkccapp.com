@@ -110,7 +110,7 @@ function App() {
       case 'visitReport':
         return <VisitReport />;
       case 'doctorAvailability':
-        return <div> <BookedAppointments /><DoctorAvailability /></div>;
+        return <div> <div><BookedAppointments /></div><div><DoctorAvailability /></div></div>;
       default:
         return null;
     }

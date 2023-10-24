@@ -34,8 +34,8 @@ const toggleSlot = async (weekday, slot, isAvailable) => {
 
 const generateTimeSlots = () => {
     const slots = [];
-    for (let i = 10; i < 20; i++) {
-        if (i >= 14 && i < 18) { continue; }
+    for (let i = 9; i < 20; i++) {
+        //if (i >= 14 && i < 18) { continue; }
         for (let j = 0; j < 60; j += 15) {
             const hour = i < 10 ? `0${i}` : i;
             const minute = j < 10 ? `0${j}` : j;
