@@ -112,3 +112,24 @@ npm run deploy
 | `/CreateAppointmentsTable` (POST) | CreateAppointmentsTable | None | `{ "statusCode": 200, "body": { "message": "Table created successfully" } }` | (Not directly mapped in current React code) |
 
 --- 
+
+## DynamoDB Tables & Schema
+
+| Table Name              | Partition Key (HASH)         | Sort Key (RANGE)           | Main Attributes / Notes                                  |
+|-------------------------|------------------------------|----------------------------|----------------------------------------------------------|
+| doctor                  | phone (S)                    | —                          | doctorName, email, specialization                        |
+| patient                 | phone (S)                    | patientName (S)            | parentName, dateOfBirth, gender, area                    |
+| vaccine                 | vaccineName (S)              | —                          | sellingPrice                                             |
+| visit                   | phoneAndPatientName (S)      | visitDate (S)              | phone, patientName, reason, consultationFee, totalVaccineFee, totalFee, paymentMode, notes, sessionNumber, entryTime |
+| vaccineGiven            | phoneAndPatientName (S)      | vaccineNameAndDate (S)     | phone, patientName, vaccineName, givenDate, vaccineCost, notes |
+| appointments            | phone (S)                    | slot (S)                   | (used in createSchema)                                   |
+| doctor_availability     | weekday (S)                  | slot (S)                   | (used in createSchema)                                   |
+| appointments (alt)      | appointmentDate (S)          | appointmentTime (S)        | patientName, patientEmail, patientPhone (used in CreateAppointmentsTable) |
+| charitable_organisations| name (S)                     | zip_code (S)               | (used in createSchemaIDO)                                |
+
+**Notes:**
+- Some tables (like `appointments`) appear with different key schemas in different Lambda functions. The main one for booking uses `appointmentDate` + `appointmentTime`.
+- Composite keys like `phoneAndPatientName` and `vaccineNameAndDate` are constructed by concatenating fields with a pipe (`|`).
+- Additional attributes may exist in each table, as inferred from the Lambda code.
+
+--- 
