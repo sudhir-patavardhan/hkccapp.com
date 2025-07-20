@@ -1,124 +1,121 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell, faUserMd, faCalendarCheck, faCalendarDay, faUser, faCalendarTimes, faInbox } from '@fortawesome/free-solid-svg-icons';
 
 function BookedAppointments(props) {
-  const [bookedAppointments, setBookedAppointments] = useState({});
-  const [upcomingReminders, setUpcomingReminders] = useState([]);
+  const [calendarData, setCalendarData] = useState({});
 
   useEffect(() => {
-    // Set up the request body
+    const startDate = moment().format('YYYY-MM-DD');
+    const endDate = moment().add(2, 'days').format('YYYY-MM-DD');
     const requestBody = {
-      startDate: moment().format('YYYY-MM-DD'),
-      endDate: moment().add(1, 'days').format('YYYY-MM-DD')
+      startDate,
+      endDate
     };
-  
-    // Make the API call with the request body
     axios.post('https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/doctoravailability', requestBody)
       .then(response => {
-        setBookedAppointments(response.data.appointments);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-
-    // Fetch visits for next 2 days for reminders
-    const visitRequest = {
-      phone:'', 
-      patientName:'',
-      startDate: moment().subtract(3, 'months').format('YYYY-MM-DD'),
-      endDate: moment().add(2, 'days').format('YYYY-MM-DD')
-    };
-    axios.post('https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/visit', visitRequest)
-      .then(response => {
-        let visits = [];
-        try {
-          visits = JSON.parse(response.data);
-        } catch (e) {
-          visits = [];
-        }
-        // Filter for nextVisitDate within next 2 days
-        const today = moment();
-        const in2days = moment().add(2, 'days');
-        const reminders = visits.filter(v => v.nextVisitDate && moment(v.nextVisitDate, 'YYYY-MM-DD', true).isValid() && moment(v.nextVisitDate).isBetween(today, in2days, undefined, '[]'));
-        setUpcomingReminders(reminders);
+        const { appointments, reminders } = response.data;
+        const days = [0, 1, 2].map(i => moment().add(i, 'days').format('YYYY-MM-DD'));
+        const dataByDate = {};
+        days.forEach(date => {
+          dataByDate[date] = {
+            appointments: appointments[date] || [],
+            reminders: reminders.filter(r => r.reminderDate === date)
+          };
+        });
+        setCalendarData(dataByDate);
       })
       .catch(error => {
         console.log(error);
       });
   }, []);
-  
-  // Render the table
-  // Helper to obfuscate phone number
+
   const obfuscatePhone = (phone) => {
     if (!phone) return '';
     if (props.authenticated) return phone;
     const last4 = phone.slice(-4);
     return `${'*'.repeat(Math.max(0, phone.length - 4))}${last4}`;
   };
+
+  const getReminderIcon = (type) => {
+    switch (type) {
+      case 'nextVisit':
+        return <FontAwesomeIcon icon={faBell} title="Next Visit Reminder" className="reminder-icon next-visit" />;
+      case 'invoicePayment':
+        return <FontAwesomeIcon icon={faCalendarCheck} title="Invoice Payment" className="reminder-icon invoice-payment" />;
+      case 'procureVaccine':
+        return <FontAwesomeIcon icon={faUserMd} title="Procure Vaccine" className="reminder-icon procure-vaccine" />;
+      default:
+        return <FontAwesomeIcon icon={faBell} title={type} className="reminder-icon" />;
+    }
+  };
+
+  const days = [0, 1, 2].map(i => moment().add(i, 'days'));
+
   return (
-    <div><h2>Booked Appointments</h2>
-    <table className="booked-appointments">
-      <thead>
-        <tr>
-          <th>{moment().format('dddd, MMMM D')}</th>
-          <th>{moment().add(1, 'days').format('dddd, MMMM D')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            {bookedAppointments[moment().format('YYYY-MM-DD')] ? (
-              <ul>
-                {bookedAppointments[moment().format('YYYY-MM-DD')].map(appointment => (
-                  <li key={appointment.appointmentTime}>
-                    {appointment.appointmentTime} - {obfuscatePhone(appointment.patientPhone)} : {appointment.patientName}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No appointments booked</p>
-            )}
-          </td>
-          <td>
-            {bookedAppointments[moment().add(1, 'days').format('YYYY-MM-DD')] ? (
-              <ul>
-                {bookedAppointments[moment().add(1, 'days').format('YYYY-MM-DD')].map(appointment => (
-                  <li key={appointment.appointmentTime}>
-                    {appointment.appointmentTime} - {obfuscatePhone(appointment.patientPhone)} : {appointment.patientName}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No appointments booked</p>
-            )}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Upcoming Visit Reminders (Next 2 Days)</h2>
-    <table className="upcoming-reminders">
-      <thead>
-        <tr>
-          <th>Patient Name</th>
-          <th>Phone</th>
-          <th>Next Visit Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {upcomingReminders.length > 0 ? (
-          upcomingReminders.map((reminder, idx) => (
-            <tr key={reminder.phone + reminder.patientName + reminder.nextVisitDate + idx}>
-              <td>{reminder.patientName}</td>
-              <td>{obfuscatePhone(reminder.phone)}</td>
-              <td>{reminder.nextVisitDate}</td>
-            </tr>
-          ))
-        ) : (
-          <tr><td colSpan={3}>No upcoming reminders</td></tr>
-        )}
-      </tbody>
-    </table>
+    <div className="calendar-container-flex">
+      <h2 className="calendar-title"><FontAwesomeIcon icon={faCalendarDay} /> Clinic Calendar (Next 3 Days)</h2>
+      <div className="calendar-days-flex">
+        {days.map(day => {
+          const dateStr = day.format('YYYY-MM-DD');
+          const dayData = calendarData[dateStr] || { appointments: [], reminders: [] };
+          const isToday = day.isSame(moment(), 'day');
+          return (
+            <div key={dateStr} className={`calendar-day-card-flex${isToday ? ' today' : ''}`}>
+              <div className="calendar-day-header-flex">
+                {day.format('dddd, MMM D')}
+                {isToday && <span className="calendar-today-label">(Today)</span>}
+              </div>
+              <div className="calendar-section-flex appointments-section-flex">
+                <div className="calendar-section-title-flex appointments-title-flex">
+                  <FontAwesomeIcon icon={faUserMd} className="section-icon appointments-icon" /> Appointments
+                </div>
+                {dayData.appointments.length > 0 ? (
+                  <ul className="calendar-list-flex appointments-list-flex">
+                    {dayData.appointments.map((appt, idx) => (
+                      <li key={appt.appointmentTime + appt.patientPhone + idx} className="calendar-list-item-flex appointment-item-flex">
+                        <span className="badge time-badge">{appt.appointmentTime}</span>
+                        <span className="appointment-patient"><FontAwesomeIcon icon={faUser} className="patient-icon" /> <b>{appt.patientName}</b></span>
+                        <span className="appointment-phone" title={props.authenticated ? appt.patientPhone : ''}>{obfuscatePhone(appt.patientPhone)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="calendar-empty-flex"><FontAwesomeIcon icon={faCalendarTimes} /> No appointments</div>
+                )}
+              </div>
+              <div className="calendar-section-flex reminders-section-flex">
+                <div className="calendar-section-title-flex reminders-title-flex">
+                  <FontAwesomeIcon icon={faBell} className="section-icon reminders-icon" /> Reminders
+                </div>
+                {dayData.reminders.length > 0 ? (
+                  <ul className="calendar-list-flex reminders-list-flex">
+                    {dayData.reminders.map((rem, idx) => (
+                      <li key={rem.reminderType + rem.phoneAndPatientName + idx} className={`calendar-list-item-flex reminder-item-flex ${rem.reminderType}-reminder`}>
+                        <span className="badge reminder-badge">{getReminderIcon(rem.reminderType)}</span>
+                        <span className="reminder-patient"><b>{rem.patientName || rem.phoneAndPatientName}</b></span>
+                        {rem.phone && (
+                          <span className="reminder-phone" title={props.authenticated ? rem.phone : ''}>({obfuscatePhone(rem.phone)})</span>
+                        )}
+                        {rem.lastVisitDate && (
+                          <span className="reminder-last-visit">Last Visit: {rem.lastVisitDate}</span>
+                        )}
+                        {rem.lastVisitReason && (
+                          <span className="reminder-last-reason">Reason: {rem.lastVisitReason}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="calendar-empty-flex"><FontAwesomeIcon icon={faInbox} /> No reminders</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
