@@ -23,6 +23,12 @@ function BookedAppointments(props) {
   }, []);
   
   // Render the table
+  // Helper to obfuscate phone number
+  const obfuscatePhone = (phone) => {
+    if (!phone) return '';
+    const last4 = phone.slice(-4);
+    return `${'*'.repeat(Math.max(0, phone.length - 4))}${last4}`;
+  };
   return (
     <div><h2>Booked Appointments</h2>
     <table className="booked-appointments">
@@ -39,7 +45,7 @@ function BookedAppointments(props) {
               <ul>
                 {bookedAppointments[moment().format('YYYY-MM-DD')].map(appointment => (
                   <li key={appointment.appointmentTime}>
-                    {appointment.appointmentTime} - {appointment.patientPhone} : {appointment.patientName}
+                    {appointment.appointmentTime} - {obfuscatePhone(appointment.patientPhone)} : {appointment.patientName}
                   </li>
                 ))}
               </ul>
@@ -52,7 +58,7 @@ function BookedAppointments(props) {
               <ul>
                 {bookedAppointments[moment().add(1, 'days').format('YYYY-MM-DD')].map(appointment => (
                   <li key={appointment.appointmentTime}>
-                    {appointment.appointmentTime} - {appointment.patientPhone} : {appointment.patientName}
+                    {appointment.appointmentTime} - {obfuscatePhone(appointment.patientPhone)} : {appointment.patientName}
                   </li>
                 ))}
               </ul>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
+import styles from './VisitReport.module.css';
 
 
 const VisitReport = () => {
@@ -159,13 +159,57 @@ const VisitReport = () => {
 
   const groupedData = groupBySession(data);
 
+  // Calculate session-wise totals
+  const sessionSummaries = Object.entries(groupedData).map(([sessionId, sessionData]) => {
+    const totalConsultationFee = sessionData.reduce((sum, row) => sum + parseFloat(row.consultationFee), 0);
+    const totalVaccineFees = sessionData.reduce((sum, row) => sum + parseFloat(row.totalVaccineFee), 0);
+    const grandTotalFee = sessionData.reduce((sum, row) => sum + parseFloat(row.totalFee), 0);
+    const numVisits = sessionData.length;
+    return {
+      sessionId,
+      totalConsultationFee: totalConsultationFee,
+      totalVaccineFees: totalVaccineFees,
+      grandTotalFee: grandTotalFee,
+      numVisits
+    };
+  });
+
+  // Calculate grand totals for the summary table
+  const grandTotals = sessionSummaries.reduce((acc, s) => {
+    acc.numVisits += s.numVisits;
+    acc.totalConsultationFee += s.totalConsultationFee;
+    acc.totalVaccineFees += s.totalVaccineFees;
+    acc.grandTotalFee += s.grandTotalFee;
+    return acc;
+  }, { numVisits: 0, totalConsultationFee: 0, totalVaccineFees: 0, grandTotalFee: 0 });
+
+  // Calculate vaccine-wise totals
+  const vaccineStats = {};
+  data.forEach(row => {
+    // row.vaccineGiven may be a comma-separated string of vaccine names
+    // row.totalVaccineFee is the total charge for all vaccines in this visit
+    if (row.vaccineGiven && row.totalVaccineFee) {
+      const vaccines = row.vaccineGiven.split(',').map(v => v.trim()).filter(Boolean);
+      const totalFee = parseFloat(row.totalVaccineFee) || 0;
+      // If there are multiple vaccines, split the fee equally (best effort)
+      const feePerVaccine = vaccines.length > 0 ? totalFee / vaccines.length : 0;
+      vaccines.forEach(vaccineName => {
+        if (!vaccineStats[vaccineName]) {
+          vaccineStats[vaccineName] = { count: 0, totalCharge: 0 };
+        }
+        vaccineStats[vaccineName].count += 1;
+        vaccineStats[vaccineName].totalCharge += feePerVaccine;
+      });
+    }
+  });
+
   return (
-    <div>
-      <h3>Visits</h3>
-      {loading ? <p className={loading}>Loading...</p> : ''}
-      <form>
-        <div className="date-selection">
-          <select name="preset" value={preset} onChange={handlePresetChange}>
+    <div className={styles.reportContainer}>
+      <h3 className={styles.title}>Visits Report</h3>
+      {loading ? <div className={styles.loading}>Loading...</div> : ''}
+      <form className={styles.filterForm}>
+        <div className={styles.dateSelection}>
+          <select name="preset" value={preset} onChange={handlePresetChange} className={styles.presetSelect}>
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
             <option value="thisMonth">This Month</option>
@@ -178,29 +222,90 @@ const VisitReport = () => {
             id="startDate"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
+            className={styles.dateInput}
           />
-          <label> to </label>
+          <span className={styles.toLabel}>to</span>
           <input
             type="date"
             id="endDate"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
+            className={styles.dateInput}
           />
         </div>
-        <p>
-          {data.length + " visits during " + startDate + " to " + endDate}
-        </p>
+
       </form>
 
-      <div>
-        <h4>Grand Totals:</h4>
-        <p>Consultation Fee: {consultationFee}</p>
-        <p>Total Vaccine Fee: {totalVaccineFee}</p>
-        <p>Total Fee: {totalFee}</p>
-      </div>
+      {/* Session-wise totals summary as a table */}
+      {sessionSummaries.length > 0 && (
+        <div className={styles.card}>
+          <h4 className={styles.sectionTitle}>Session-wise Totals</h4>
+          <table className={styles.summaryTable}>
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Visits</th>
+                <th>Consultation Fee</th>
+                <th>Vaccine Fee</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessionSummaries.map(s => (
+                <tr key={s.sessionId}>
+                  <td><span className={styles.sessionBadge}>{s.sessionId}</span></td>
+                  <td>{s.numVisits}</td>
+                  <td className={styles.feeBlue}>{s.totalConsultationFee.toFixed(2)}</td>
+                  <td className={styles.feeGreen}>{s.totalVaccineFees.toFixed(2)}</td>
+                  <td className={styles.feeRed}>{s.grandTotalFee.toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr className={styles.grandTotalRow}>
+                <td>Grand Total</td>
+                <td>{grandTotals.numVisits}</td>
+                <td className={styles.feeBlue}>{grandTotals.totalConsultationFee.toFixed(2)}</td>
+                <td className={styles.feeGreen}>{grandTotals.totalVaccineFees.toFixed(2)}</td>
+                <td className={styles.feeRed}>{grandTotals.grandTotalFee.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {Object.entries(groupedData).map(([sessionId, sessionData]) => renderTable(sessionData, sessionId))}
-  
+      {/* Vaccine-wise summary table */}
+      {Object.keys(vaccineStats).length > 0 && (
+        <div className={styles.card}>
+          <h4 className={styles.sectionTitle}>Vaccine-wise Totals</h4>
+          <table className={styles.summaryTable}>
+            <thead>
+              <tr>
+                <th>Vaccine</th>
+                <th>Total Given</th>
+                <th>Vaccine Charge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(vaccineStats).map(([vaccine, stats], idx) => (
+                <tr key={vaccine} className={idx % 2 === 0 ? styles.zebra : ''}>
+                  <td>{vaccine}</td>
+                  <td>{stats.count}</td>
+                  <td className={styles.feeGreen}>{stats.totalCharge.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Detailed session tables */}
+      <div className={styles.sessionTables}>
+        {Object.entries(groupedData).map(([sessionId, sessionData]) => (
+          <div key={sessionId} className={styles.card}>
+            <h4 className={styles.sectionTitle}>Session <span className={styles.sessionBadge}>{sessionId}</span> Details</h4>
+            {renderTable(sessionData, sessionId)}
+          </div>
+        ))}
+      </div>
     </div>
   );
 

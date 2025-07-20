@@ -1,0 +1,163 @@
+.reportContainer {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #f9fafd;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  letter-spacing: 0.5px;
+}
+
+.loading {
+  color: #007bff;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.filterForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.dateSelection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.presetSelect, .dateInput {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 1rem;
+  background: #f8fafc;
+  transition: border 0.2s;
+}
+.presetSelect:focus, .dateInput:focus {
+  border: 1.5px solid #007bff;
+  outline: none;
+}
+
+.toLabel {
+  color: #888;
+  font-size: 1rem;
+}
+
+.summaryText {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: #444;
+}
+
+.badge {
+  display: inline-block;
+  background: #007bff;
+  color: #fff;
+  border-radius: 12px;
+  padding: 0.2em 0.8em;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-right: 0.5em;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 2rem;
+  padding: 1.2rem 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #007bff;
+  margin-bottom: 1rem;
+  letter-spacing: 0.2px;
+}
+
+.summaryTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8fafc;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+.summaryTable th, .summaryTable td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6em 1em;
+  text-align: right;
+}
+.summaryTable th {
+  background: #f1f5f9;
+  color: #2c3e50;
+  font-weight: 700;
+  text-align: center;
+}
+.summaryTable td {
+  background: #fff;
+  transition: background 0.2s;
+}
+.zebra {
+  background: #f6fafd !important;
+}
+.summaryTable tr:hover td {
+  background: #eaf6ff !important;
+}
+.sessionBadge {
+  display: inline-block;
+  background: #6c63ff;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.15em 0.7em;
+  font-size: 1em;
+  font-weight: 600;
+}
+.feeBlue {
+  color: #007bff;
+  font-weight: 600;
+}
+.feeGreen {
+  color: #28a745;
+  font-weight: 600;
+}
+.feeRed {
+  color: #dc3545;
+  font-weight: 600;
+}
+.grandTotalRow {
+  background: #f0f0f0 !important;
+  font-weight: 700;
+  border-top: 2px solid #007bff;
+}
+.sessionTables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+  gap: 1.5rem;
+}
+@media (max-width: 900px) {
+  .reportContainer {
+    padding: 0.5rem;
+  }
+  .card {
+    padding: 0.7rem 0.5rem;
+  }
+  .sessionTables {
+    grid-template-columns: 1fr;
+  }
+}
+  
