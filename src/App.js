@@ -92,7 +92,7 @@ function App() {
         <button onClick={authenticateUser}>Login</button>
         
       </div>
-      <BookedAppointments />
+      <BookedAppointments authenticated={authenticated} />
       </div>
     );
   };
@@ -110,7 +110,7 @@ function App() {
       case 'visitReport':
         return <VisitReport />;
       case 'doctorAvailability':
-        return <div> <div><BookedAppointments /></div><div><DoctorAvailability /></div></div>;
+        return <div> <div><BookedAppointments authenticated={authenticated} /></div><div><DoctorAvailability /></div></div>;
       default:
         return null;
     }
@@ -143,7 +143,7 @@ function App() {
           <i className="fas fa-calendar-days tile-icon"></i>
           {'Doctor\'s Schedule'}
         </div>
-        <div className="tileAlso"><BookedAppointments /></div>
+        <div className="tileAlso"><BookedAppointments authenticated={authenticated} /></div>
         
       </div>
     )
