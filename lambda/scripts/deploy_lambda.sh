@@ -25,7 +25,7 @@ zip -r "../scripts/$ZIP_FILE" .
 cd - > /dev/null
 
 # Update the Lambda function code
-aws lambda update-function-code --function-name "$LAMBDA_NAME" --zip-file "fileb://scripts/$ZIP_FILE"
+aws lambda update-function-code --function-name "$LAMBDA_NAME" --zip-file "fileb://$(pwd)/$ZIP_FILE"
 
 # Remove the zip file after deployment
 rm "scripts/$ZIP_FILE"

@@ -31,7 +31,7 @@ function BookedAppointments(props) {
         console.log(error);
       });
   }, []);
-
+  
   const obfuscatePhone = (phone) => {
     if (!phone) return '';
     if (props.authenticated) return phone;
@@ -79,12 +79,12 @@ function BookedAppointments(props) {
                         <span className="badge time-badge">{appt.appointmentTime}</span>
                         <span className="appointment-patient"><FontAwesomeIcon icon={faUser} className="patient-icon" /> <b>{appt.patientName}</b></span>
                         <span className="appointment-phone" title={props.authenticated ? appt.patientPhone : ''}>{obfuscatePhone(appt.patientPhone)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
+                  </li>
+                ))}
+              </ul>
+            ) : (
                   <div className="calendar-empty-flex"><FontAwesomeIcon icon={faCalendarTimes} /> No appointments</div>
-                )}
+            )}
               </div>
               <div className="calendar-section-flex reminders-section-flex">
                 <div className="calendar-section-title-flex reminders-title-flex">
@@ -105,12 +105,12 @@ function BookedAppointments(props) {
                         {rem.lastVisitReason && (
                           <span className="reminder-last-reason">Reason: {rem.lastVisitReason}</span>
                         )}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
+                  </li>
+                ))}
+              </ul>
+            ) : (
                   <div className="calendar-empty-flex"><FontAwesomeIcon icon={faInbox} /> No reminders</div>
-                )}
+            )}
               </div>
             </div>
           );
