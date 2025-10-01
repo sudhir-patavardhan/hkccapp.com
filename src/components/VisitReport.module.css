@@ -145,8 +145,8 @@
   border-top: 2px solid #007bff;
 }
 .sessionTables {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 @media (max-width: 900px) {

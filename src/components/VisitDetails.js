@@ -39,6 +39,7 @@ const VisitDetails = ({ selectedPatient }) => {
   const [totalFee, setTotalFee] = useState(0);
   const [sessionNumber, setSessionNumber] = useState(new Date().getHours() < 17 ? '1':'2');
   const [entryTime, setEntryTime] = useState( new Date().getHours() * 10000 + new Date().getMinutes() * 100 + new Date().getSeconds());
+  const [nextVisitDate, setNextVisitDate] = useState('');
 
   const [vaccines, setVaccines] = useState([{ phone: phone, patientName: patientName, givenDate: visitDate, vaccineName: '', vaccineCost: '', notes: '' }]);
 
@@ -186,6 +187,9 @@ const VisitDetails = ({ selectedPatient }) => {
       sessionNumber,
       entryTime
     };
+    if (nextVisitDate) {
+      visitDetails.nextVisitDate = nextVisitDate;
+    }
     console.log(JSON.stringify(visitDetails));
 
     try {
@@ -217,6 +221,7 @@ const VisitDetails = ({ selectedPatient }) => {
             value={visitDate || new Date().toISOString().slice(0, 10)}
             onChange={(e) => setVisitDate(e.target.value)}
           />
+
           <label> Session: </label>
             <select value={sessionNumber} onChange={(e) => setSessionNumber(e.target.value)} >
               <option key='1' value='1'>1</option>
@@ -274,6 +279,15 @@ const VisitDetails = ({ selectedPatient }) => {
           <label>Total Payment:</label>
           <span>{totalFee}</span>
         </div>
+        <div className="form-group">
+        <label htmlFor="nextVisitDate"> Next Visit Date:</label>
+          <input
+            type="date"
+            id="nextVisitDate"
+            value={nextVisitDate}
+            onChange={(e) => setNextVisitDate(e.target.value)}
+          />
+          </div>
         <div className="form-group">
           {loading && <div className="spinner">Saving...</div>}
           <button type="submit"><i className="fas fa-duotone fa-floppy-disk"></i> Save </button>

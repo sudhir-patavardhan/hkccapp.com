@@ -41,6 +41,18 @@ def lambda_handler(event, context):
                 'patientName': item['patientName']
             })
 
+    # Fetch reminders from the reminder table for the same date range
+    reminder_table = dynamodb.Table('reminder')
+    reminders = []
+    for i in range(num_days):
+        date = start_date + timedelta(days=i)
+        date_str = date.strftime('%Y-%m-%d')
+        response = reminder_table.query(
+            KeyConditionExpression=boto3.dynamodb.conditions.Key('reminderDate').eq(date_str)
+        )
+        reminders.extend(response['Items'])
+
     return {
         'appointments': appointments,
+        'reminders': reminders
     }

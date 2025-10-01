@@ -183,25 +183,57 @@ const VisitReport = () => {
     return acc;
   }, { numVisits: 0, totalConsultationFee: 0, totalVaccineFees: 0, grandTotalFee: 0 });
 
-  // Calculate vaccine-wise totals
-  const vaccineStats = {};
-  data.forEach(row => {
-    // row.vaccineGiven may be a comma-separated string of vaccine names
-    // row.totalVaccineFee is the total charge for all vaccines in this visit
-    if (row.vaccineGiven && row.totalVaccineFee) {
-      const vaccines = row.vaccineGiven.split(',').map(v => v.trim()).filter(Boolean);
-      const totalFee = parseFloat(row.totalVaccineFee) || 0;
-      // If there are multiple vaccines, split the fee equally (best effort)
-      const feePerVaccine = vaccines.length > 0 ? totalFee / vaccines.length : 0;
-      vaccines.forEach(vaccineName => {
-        if (!vaccineStats[vaccineName]) {
-          vaccineStats[vaccineName] = { count: 0, totalCharge: 0 };
+  // Collect individual vaccine given records with patient details
+  const [vaccineGivenRecords, setVaccineGivenRecords] = useState([]);
+  const [vaccineStats, setVaccineStats] = useState({});
+  
+  useEffect(() => {
+    const fetchVaccineGivenRecords = async () => {
+      try {
+        // Fetch all vaccine given records for the date range
+        const vaccineResponse = await axios.post(
+          'https://h878q1k811.execute-api.us-west-2.amazonaws.com/Prod/vaccinegivenreport',
+          {
+            startDate: startDate,
+            endDate: endDate
+          }
+        );
+        
+        let allVaccineRecords;
+        if (typeof vaccineResponse.data === 'string') {
+          allVaccineRecords = JSON.parse(vaccineResponse.data);
+        } else {
+          allVaccineRecords = vaccineResponse.data;
         }
-        vaccineStats[vaccineName].count += 1;
-        vaccineStats[vaccineName].totalCharge += feePerVaccine;
-      });
+        console.log('Vaccine records received:', allVaccineRecords);
+        setVaccineGivenRecords(allVaccineRecords);
+        
+        // Build vaccine-wise summary
+        const stats = {};
+        allVaccineRecords.forEach(record => {
+          const vaccineName = record.vaccineName;
+          const vaccineCost = parseFloat(record.vaccineCost) || 0;
+          
+          if (!stats[vaccineName]) {
+            stats[vaccineName] = { count: 0, totalCharge: 0 };
+          }
+          stats[vaccineName].count += 1;
+          stats[vaccineName].totalCharge += vaccineCost;
+        });
+        
+        console.log('Vaccine stats calculated:', stats);
+        setVaccineStats(stats);
+      } catch (error) {
+        console.error('Error fetching vaccine given records:', error);
+        setVaccineGivenRecords([]);
+        setVaccineStats({});
+      }
+    };
+    
+    if (startDate && endDate) {
+      fetchVaccineGivenRecords();
     }
-  });
+  }, [startDate, endDate]);
 
   return (
     <div className={styles.reportContainer}>
@@ -272,16 +304,17 @@ const VisitReport = () => {
         </div>
       )}
 
-      {/* Vaccine-wise summary table */}
+      {/* Vaccine-wise Summary */}
+      {console.log('Rendering vaccine stats:', vaccineStats, 'Keys:', Object.keys(vaccineStats))}
       {Object.keys(vaccineStats).length > 0 && (
         <div className={styles.card}>
-          <h4 className={styles.sectionTitle}>Vaccine-wise Totals</h4>
+          <h4 className={styles.sectionTitle}>Vaccine-wise Summary</h4>
           <table className={styles.summaryTable}>
             <thead>
               <tr>
                 <th>Vaccine</th>
                 <th>Total Given</th>
-                <th>Vaccine Charge</th>
+                <th>Total Charge</th>
               </tr>
             </thead>
             <tbody>
@@ -290,6 +323,35 @@ const VisitReport = () => {
                   <td>{vaccine}</td>
                   <td>{stats.count}</td>
                   <td className={styles.feeGreen}>{stats.totalCharge.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Individual Vaccine Given Records */}
+      {vaccineGivenRecords.length > 0 && (
+        <div className={styles.card}>
+          <h4 className={styles.sectionTitle}>Vaccine Given Records</h4>
+          <table className={styles.summaryTable}>
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Phone</th>
+                <th>Vaccine</th>
+                <th>Given Date</th>
+                <th>Vaccine Charge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vaccineGivenRecords.map((record, idx) => (
+                <tr key={`${record.patientName}-${record.vaccineName}-${record.givenDate}`} className={idx % 2 === 0 ? styles.zebra : ''}>
+                  <td>{record.patientName}</td>
+                  <td>{record.phone}</td>
+                  <td>{record.vaccineName}</td>
+                  <td>{record.givenDate}</td>
+                  <td className={styles.feeGreen}>{parseFloat(record.vaccineCost).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
