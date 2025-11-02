@@ -105,6 +105,9 @@ function BookedAppointments(props) {
                         {rem.lastVisitReason && (
                           <span className="reminder-last-reason">Reason: {rem.lastVisitReason}</span>
                         )}
+                        {rem.nextVisitNote && (
+                          <span className="reminder-next-note">Note: {rem.nextVisitNote}</span>
+                        )}
                   </li>
                 ))}
               </ul>

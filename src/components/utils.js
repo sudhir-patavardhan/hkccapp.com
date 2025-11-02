@@ -44,3 +44,8 @@ export function getAgeString(dateOfBirth)
       return(ageCalc + 'y '+ monthCalc +'mo')
   }
 }
+
+export function getAppVersion() {
+  // Version based on S3 deployment date (Nov 2, 2025)
+  return "v2025.11.02";
+}

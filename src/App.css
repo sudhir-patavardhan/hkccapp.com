@@ -71,6 +71,42 @@
   color: #ccc;
 }
 
+.app-footer {
+  background-color: #1c3f95;
+  color: #fff;
+  padding: 15px 20px;
+  text-align: center;
+  margin-top: auto;
+  border-top: 2px solid #2a69af;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.app-footer p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.app-footer .version {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* Mobile responsiveness for footer */
+@media (max-width: 768px) {
+  .app-footer {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .app-footer p {
+    margin: 3px 0;
+    font-size: 0.8rem;
+  }
+}
 
 tr:hover {
   background-color: #bee3f8;
@@ -331,6 +367,62 @@ button:focus {
   margin: 0.2rem;
 }
 
+/* Panel styling for form sections */
+.reminder-panel,
+.visit-details-panel,
+.vaccine-panel {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.reminder-panel h4,
+.visit-details-panel h4,
+.vaccine-panel h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #1c3f95;
+}
+
+/* Global form input styling - consistent with login form */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+  padding: 7px 10px;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2b6cb0;
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+}
+
+textarea {
+  width: 200px;
+  resize: vertical;
+}
+
+.reminder-next-note {
+  display: block;
+  font-style: italic;
+  color: #666;
+  margin-top: 4px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -365,7 +457,6 @@ tr:nth-child(even) {
   margin-right: 8px;
 }
 
-
 .login-form {
   display: flex;
   flex-direction: column;
@@ -393,10 +484,8 @@ tr:nth-child(even) {
 .login-form input {
   display: block;
   width: 100%;
-  padding: 5px;
   margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  /* Uses global input styling */
 }
 
 .login-form button {
@@ -622,6 +711,8 @@ tr:nth-child(even) {
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 12px 24px 12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .content-header-flex {

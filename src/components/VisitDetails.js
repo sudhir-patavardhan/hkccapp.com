@@ -34,12 +34,14 @@ const VisitDetails = ({ selectedPatient }) => {
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
   const [paymentMode, setPaymentMode] = useState('Cash');
-  const [consultationFee, setConsultationFee] = useState('');
+  const [consultationFee, setConsultationFee] = useState(0);
+  const [consultationFeeInput, setConsultationFeeInput] = useState('0');
   const [totalVaccineFee, setTotalVaccineFee] = useState(0);
   const [totalFee, setTotalFee] = useState(0);
   const [sessionNumber, setSessionNumber] = useState(new Date().getHours() < 17 ? '1':'2');
   const [entryTime, setEntryTime] = useState( new Date().getHours() * 10000 + new Date().getMinutes() * 100 + new Date().getSeconds());
   const [nextVisitDate, setNextVisitDate] = useState('');
+  const [nextVisitNote, setNextVisitNote] = useState('');
 
   const [vaccines, setVaccines] = useState([{ phone: phone, patientName: patientName, givenDate: visitDate, vaccineName: '', vaccineCost: '', notes: '' }]);
 
@@ -145,9 +147,28 @@ const VisitDetails = ({ selectedPatient }) => {
   };
 
   const handleConsultationFeeChange = (e) => {
-    setConsultationFee(Number(e.target.value));
-    setTotalFee(Number(e.target.value) + calcTotalVaccineCost(vaccines));
+    const value = e.target.value;
+    setConsultationFeeInput(value);
+    
+    // Convert to number for calculations, default to 0 if empty
+    const feeValue = value === '' ? 0 : Number(value);
+    setConsultationFee(feeValue);
+    setTotalFee(feeValue + calcTotalVaccineCost(vaccines));
     setIsSaved(false);
+  };
+
+  const handleConsultationFeeFocus = () => {
+    // When user clicks on the field, clear it if it shows "0"
+    if (consultationFeeInput === '0') {
+      setConsultationFeeInput('');
+    }
+  };
+
+  const handleConsultationFeeBlur = () => {
+    // When user leaves the field, show 0 if it's empty
+    if (consultationFeeInput === '') {
+      setConsultationFeeInput('0');
+    }
   };
 
 
@@ -189,6 +210,7 @@ const VisitDetails = ({ selectedPatient }) => {
     };
     if (nextVisitDate) {
       visitDetails.nextVisitDate = nextVisitDate;
+      visitDetails.nextVisitNote = nextVisitNote;
     }
     console.log(JSON.stringify(visitDetails));
 
@@ -211,83 +233,105 @@ const VisitDetails = ({ selectedPatient }) => {
   return (
     <div>
  {<h4>{selectedPatient.patientName}, {selectedPatient && getAgeString(selectedPatient.dateOfBirth)} , {selectedPatient.phone}</h4>}
-      {<h4>New Visit</h4>}
       <form onSubmit={handleSubmit} className='list'>
-        <div className="form-group">
-          <label htmlFor="visitDate"> Date:</label>
-          <input
-            type="date"
-            id="visitDate"
-            value={visitDate || new Date().toISOString().slice(0, 10)}
-            onChange={(e) => setVisitDate(e.target.value)}
-          />
+        <div className="visit-details-panel">
+          <h4>Visit Details</h4>
+          <div className="form-group">
+            <label htmlFor="visitDate"> Date:</label>
+            <input
+              type="date"
+              id="visitDate"
+              value={visitDate || new Date().toISOString().slice(0, 10)}
+              onChange={(e) => setVisitDate(e.target.value)}
+            />
 
-          <label> Session: </label>
-            <select value={sessionNumber} onChange={(e) => setSessionNumber(e.target.value)} >
-              <option key='1' value='1'>1</option>
-              <option key='2' value='2'>2</option>
+            <label> Session: </label>
+              <select value={sessionNumber} onChange={(e) => setSessionNumber(e.target.value)} >
+                <option key='1' value='1'>1</option>
+                <option key='2' value='2'>2</option>
 
-              </select>
-        </div>
-        <div className="form-group">
-          <label htmlFor="consultationFee">Consultation Fee:</label>
-          <input
-            type="number"
-            id="consultationFee"
-            value={consultationFee}
-            onChange={(e) => handleConsultationFeeChange(e)}
-          />
-
-          <div onChange={(e) => setPaymentMode(e.target.value)} id="paymentMode">
-            <input type="radio" value="Cash" name="paymentMode" /> Cash
-            <input type="radio" value="Paytm" name="paymentMode" /> Paytm
-            <input type="radio" value="UPI" name="paymentMode" /> UPI
-            <input type="radio" value="Card" name="paymentMode" /> Card
-            <input type="radio" value="Other" name="paymentMode" /> Other
+                </select>
           </div>
-        </div>
-
-        {vaccines.map((vaccine, index) => (
-          <div key={index} className="form-group">
-            <button type="button" className="remove-vaccine" onClick={() => handleRemoveVaccine(index)}><i className="fas fa-duotone fa-minus"></i></button>
-            <label>Vaccine: </label>
-            <select value={vaccine.vaccineName} onChange={(e) => handleVaccineNameChange(index, e)} >
-              <option key='' value=''></option>
-              {vaccineOptions.map((option) => (
-                <option key={option.vaccineName} value={option.vaccineName}>
-                  {option.vaccineName}
-                </option>
-              ))}
-            </select>
-            <label>Cost: </label>
+          <div className="form-group">
+            <label htmlFor="consultationFee">Consultation Fee:</label>
             <input
               type="number"
-              value={vaccine.vaccineCost}
-              onChange={(e) => handleVaccineCostChange(index, e)}
+              id="consultationFee"
+              value={consultationFeeInput}
+              onChange={(e) => handleConsultationFeeChange(e)}
+              onFocus={handleConsultationFeeFocus}
+              onBlur={handleConsultationFeeBlur}
+              min="0"
+            />
+
+            <div onChange={(e) => setPaymentMode(e.target.value)} id="paymentMode">
+              <input type="radio" value="Cash" name="paymentMode" /> Cash
+              <input type="radio" value="Paytm" name="paymentMode" /> Paytm
+              <input type="radio" value="UPI" name="paymentMode" /> UPI
+              <input type="radio" value="Card" name="paymentMode" /> Card
+              <input type="radio" value="Other" name="paymentMode" /> Other
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Total Payment:</label>
+            <span>{totalFee}</span>
+          </div>
+        </div>
+
+        <div className="vaccine-panel">
+          <h4>Vaccines</h4>
+          {vaccines.map((vaccine, index) => (
+            <div key={index} className="form-group">
+              <button type="button" className="remove-vaccine" onClick={() => handleRemoveVaccine(index)}><i className="fas fa-duotone fa-minus"></i></button>
+              <label>Vaccine: </label>
+              <select value={vaccine.vaccineName} onChange={(e) => handleVaccineNameChange(index, e)} >
+                <option key='' value=''></option>
+                {vaccineOptions.map((option) => (
+                  <option key={option.vaccineName} value={option.vaccineName}>
+                    {option.vaccineName}
+                  </option>
+                ))}
+              </select>
+              <label>Cost: </label>
+              <input
+                type="number"
+                value={vaccine.vaccineCost}
+                onChange={(e) => handleVaccineCostChange(index, e)}
+              />
+            </div>
+          ))}
+          <div className="form-group">
+            <button type="button" className="add-vaccine" onClick={handleAddVaccine}><i className="fas fa-duotone fa-plus"></i></button>
+          </div>
+          <div className='form-group'>
+            <label>Total Vaccine Cost:</label>
+            <span>{totalVaccineFee}</span>
+          </div>
+        </div>
+
+        <div className="reminder-panel">
+          <h4>Reminder</h4>
+          <div className="form-group">
+            <label htmlFor="nextVisitDate">Next Visit Date:</label>
+            <input
+              type="date"
+              id="nextVisitDate"
+              value={nextVisitDate}
+              onChange={(e) => setNextVisitDate(e.target.value)}
             />
           </div>
-        ))}
-        <div className="form-group">
-          <button type="button" className="add-vaccine" onClick={handleAddVaccine}><i className="fas fa-duotone fa-plus"></i></button>
-
-        </div>
-        <div className='form-group'>
-          <label>Total Vaccine Cost:</label>
-          <span>{totalVaccineFee}</span>
-        </div>
-        <div className="form-group">
-          <label>Total Payment:</label>
-          <span>{totalFee}</span>
-        </div>
-        <div className="form-group">
-        <label htmlFor="nextVisitDate"> Next Visit Date:</label>
-          <input
-            type="date"
-            id="nextVisitDate"
-            value={nextVisitDate}
-            onChange={(e) => setNextVisitDate(e.target.value)}
-          />
+          <div className="form-group">
+            <label htmlFor="nextVisitNote">Next Visit Note:</label>
+            <textarea
+              id="nextVisitNote"
+              value={nextVisitNote}
+              onChange={(e) => setNextVisitNote(e.target.value)}
+              placeholder="Reason for next visit..."
+              rows="2"
+            />
           </div>
+        </div>
+
         <div className="form-group">
           {loading && <div className="spinner">Saving...</div>}
           <button type="submit"><i className="fas fa-duotone fa-floppy-disk"></i> Save </button>

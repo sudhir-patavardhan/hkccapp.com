@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import PatientList from './components/PatientList';
@@ -8,16 +8,30 @@ import VisitDetails from './components/VisitDetails';
 import VisitReport from './components/VisitReport';
 import DoctorAvailability from './components/DoctorAvailability';
 import BookedAppointments from './components/BookedAppointments';
+import { getAppVersion } from './components/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClinicMedical, faHospitalUser, faRightFromBracket, faUsers, faUserPlus, faDoorOpen, faSyringe, faChartBar, faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const [selectedEntity, setSelectedEntity] = useState(null);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(() => {
+    // Check localStorage on initial load
+    return localStorage.getItem('clinicapp_authenticated') === 'true';
+  });
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [selectedTab, setSelectedTab] = useState(null);
   const [showTiles, setShowTiles] = useState(true);
+
+  // Load authentication state from localStorage on component mount
+  useEffect(() => {
+    const savedAuth = localStorage.getItem('clinicapp_authenticated');
+    if (savedAuth === 'true') {
+      setAuthenticated(true);
+      setShowTiles(true);
+      setSelectedTab(null);
+    }
+  }, []);
 
   const handleItemClick = (entity) => {
     setSelectedEntity(entity);
@@ -47,6 +61,8 @@ function App() {
     setUserId('');
     setPassword('');
     setSelectedEntity(null);
+    // Remove authentication state from localStorage
+    localStorage.removeItem('clinicapp_authenticated');
   };
 
   const authenticateUser = async () => {
@@ -58,8 +74,11 @@ function App() {
     const responseJson = await response.json();
     if (responseJson['statusCode'] === 200) {
       setAuthenticated(true);
+      // Save authentication state to localStorage
+      localStorage.setItem('clinicapp_authenticated', 'true');
     } else {
       setAuthenticated(false);
+      localStorage.removeItem('clinicapp_authenticated');
       alert('Authentication failed!');
     }
   };
@@ -149,6 +168,10 @@ function App() {
         {!authenticated && renderLoginForm()}
         {authenticated && showTiles && renderTiles()}
         {authenticated && renderContent()}
+        <div className="app-footer">
+          <p>Healthy Kids Children's Clinic</p>
+          <p className="version">{getAppVersion()}</p>
+        </div>
       </div>
     </div>
   );

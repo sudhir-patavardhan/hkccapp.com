@@ -22,6 +22,7 @@ def lambda_handler(event, context):
     sessionNumber = event['sessionNumber']
     entryTime = str(event['entryTime'])
     nextVisitDate = event.get('nextVisitDate')
+    nextVisitNote = event.get('nextVisitNote', '')
     
     # Create a new item to insert into the table
     new_item = {
@@ -40,6 +41,8 @@ def lambda_handler(event, context):
     }
     if nextVisitDate:
         new_item['nextVisitDate'] = nextVisitDate
+    if nextVisitNote:
+        new_item['nextVisitNote'] = nextVisitNote
     
     # Insert the new item into the visit table
     table.put_item(Item=new_item)
@@ -82,6 +85,7 @@ def lambda_handler(event, context):
             'patientName': patientName,
             'lastVisitDate': visitDate,
             'lastVisitReason': reason,
+            'nextVisitNote': nextVisitNote,
             'createdAt': visitDate
         }
         reminder_table.put_item(Item=reminder_item)

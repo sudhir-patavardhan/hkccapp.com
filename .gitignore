@@ -1,1 +1,4 @@
 node_modules
+
+# AWS account backup files (contain sensitive credentials)
+.aws-*-*.bak
